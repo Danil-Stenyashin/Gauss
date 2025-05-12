@@ -13,22 +13,22 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     
-    - name: Install dependencies
+    - name: Установка зависимостей
       run: |
         sudo apt-get update
         sudo apt-get install -y build-essential libeigen3-dev libgtest-dev cmake
         
-    - name: Build Google Test
+    - name: Сборка Google Test
       run: |
         cd /usr/src/googletest
         sudo cmake CMakeLists.txt
         sudo make
         sudo cp lib/libgtest*.a /usr/lib
         
-    - name: Setup Makefile
+    - name: Создание Makefile
       run: |
         mkdir -p bin
-        cat << 'EOF' > Makefile
+        cat > Makefile << 'EOF'
 CXX = g++
 CXXFLAGS = -std=c++17 -O3 -march=native -Wall -Wextra -I/usr/include/eigen3
 GTEST_LIBS = -lgtest -lgtest_main -lpthread
@@ -36,7 +36,9 @@ GTEST_LIBS = -lgtest -lgtest_main -lpthread
 SRC = main.cpp csv_utils.cpp gauss.cpp random_generator.cpp
 TEST_SRC = test.cpp
 
-all: bin/gauss_app bin/gauss_tests
+TARGETS = bin/gauss_app bin/gauss_tests
+
+all: $(TARGETS)
 
 bin/gauss_app: $(SRC)
 	@mkdir -p bin
@@ -55,21 +57,16 @@ clean:
 .PHONY: all test clean
 EOF
         
-    - name: Verify Makefile
-      run: |
-        cat Makefile
-        make --dry-run
-        
-    - name: Build project
+    - name: Сборка проекта
       run: |
         make clean
         make all
       
-    - name: Run tests
+    - name: Запуск тестов
       run: |
         make test
       
-    - name: Verify solver
+    - name: Проверка решения
       run: |
         ./bin/gauss_app 5 test_system.csv solution.csv
         cat solution.csv
