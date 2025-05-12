@@ -25,40 +25,38 @@ jobs:
         sudo make
         sudo cp lib/libgtest*.a /usr/lib
         
-    - name: Setup Makefile
-      run: |
-        mkdir -p bin
-        cat << 'EOF' > Makefile
-CXX = g++
-CXXFLAGS = -std=c++17 -O3 -march=native -Wall -Wextra -I/usr/include/eigen3
-GTEST_LIBS = -lgtest -lgtest_main -lpthread
-
-SRC = main.cpp csv_utils.cpp gauss.cpp random_generator.cpp
-TEST_SRC = test.cpp
-
-all: bin/gauss_app bin/gauss_tests
-
-bin/gauss_app: $(SRC)
-	@mkdir -p bin
-	$(CXX) $(CXXFLAGS) $^ -o $@
-
-bin/gauss_tests: $(TEST_SRC) $(filter-out main.cpp, $(SRC))
-	@mkdir -p bin
-	$(CXX) $(CXXFLAGS) $^ $(GTEST_LIBS) -o $@
-
-test: bin/gauss_tests
-	./bin/gauss_tests
-
-clean:
-	rm -rf bin/*
-
-.PHONY: all test clean
-EOF
+	- name: Setup Makefile
+	  run: |
+		mkdir -p bin
+		echo "CXX = g++" > Makefile
+		echo "CXXFLAGS = -std=c++17 -O3 -march=native -Wall -Wextra -I/usr/include/eigen3" >> Makefile
+		echo "GTEST_LIBS = -lgtest -lgtest_main -lpthread" >> Makefile
+		echo "" >> Makefile
+		echo "SRC = main.cpp csv_utils.cpp gauss.cpp random_generator.cpp" >> Makefile
+		echo "TEST_SRC = test.cpp" >> Makefile
+		echo "" >> Makefile
+		echo "all: bin/gauss_app bin/gauss_tests" >> Makefile
+		echo "" >> Makefile
+		echo "bin/gauss_app: \$(SRC)" >> Makefile
+		echo -e "\t@mkdir -p bin" >> Makefile
+		echo -e "\t\$(CXX) \$(CXXFLAGS) \$^ -o \$@" >> Makefile
+		echo "" >> Makefile
+		echo "bin/gauss_tests: \$(TEST_SRC) \$(filter-out main.cpp, \$(SRC))" >> Makefile
+		echo -e "\t@mkdir -p bin" >> Makefile
+		echo -e "\t\$(CXX) \$(CXXFLAGS) \$^ \$(GTEST_LIBS) -o \$@" >> Makefile
+		echo "" >> Makefile
+		echo "test: bin/gauss_tests" >> Makefile
+		echo -e "\t./bin/gauss_tests" >> Makefile
+		echo "" >> Makefile
+		echo "clean:" >> Makefile
+		echo -e "\trm -rf bin/*" >> Makefile
+		echo "" >> Makefile
+		echo ".PHONY: all test clean" >> Makefile
         
     - name: Build project
       run: |
         make clean
-        make all
+        make
       
     - name: Run tests
       run: |
@@ -66,5 +64,6 @@ EOF
       
     - name: Verify solver
       run: |
-        ./bin/gauss_app 5 test_system.csv solution.csv
+        ./bin/generate_system 5 test_system.csv
+        ./bin/gauss_solver test_system.csv solution.csv
         cat solution.csv
