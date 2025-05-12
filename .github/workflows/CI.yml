@@ -25,43 +25,42 @@ jobs:
         sudo make
         sudo cp lib/libgtest*.a /usr/lib
         
-	- name: Setup Makefile
-	  run: |
-	    mkdir -p bin
-	    cat > Makefile << 'EOF'
-	CXX = g++
-	CXXFLAGS = -std=c++17 -O3 -march=native -Wall -Wextra -I/usr/include/eigen3
-	GTEST_LIBS = -lgtest -lgtest_main -lpthread
+    - name: Setup Makefile
+      run: |
+        mkdir -p bin
+        cat > Makefile << 'EOF'
+CXX = g++
+CXXFLAGS = -std=c++17 -O3 -march=native -Wall -Wextra -I/usr/include/eigen3
+GTEST_LIBS = -lgtest -lgtest_main -lpthread
 
-	SRC = main.cpp csv_utils.cpp gauss.cpp random_generator.cpp
-	TEST_SRC = test.cpp
+SRC = main.cpp csv_utils.cpp gauss.cpp random_generator.cpp
+TEST_SRC = test.cpp
 
-	TARGETS = bin/gauss_app bin/gauss_tests
+TARGETS = bin/gauss_app bin/gauss_tests
 
-	all: $(TARGETS)
+all: $(TARGETS)
 
-	bin/gauss_app: $(SRC)
-		@mkdir -p bin
-		$(CXX) $(CXXFLAGS) $^ -o $@
+bin/gauss_app: $(SRC)
+	@mkdir -p bin
+	$(CXX) $(CXXFLAGS) $^ -o $@
 
-	bin/gauss_tests: $(TEST_SRC) $(filter-out main.cpp, $(SRC))
-		@mkdir -p bin
-		$(CXX) $(CXXFLAGS) $^ $(GTEST_LIBS) -o $@
+bin/gauss_tests: $(TEST_SRC) $(filter-out main.cpp, $(SRC))
+	@mkdir -p bin
+	$(CXX) $(CXXFLAGS) $^ $(GTEST_LIBS) -o $@
 
-	test: bin/gauss_tests
-		./bin/gauss_tests
+test: bin/gauss_tests
+	./bin/gauss_tests
 
-	clean:
-		rm -rf bin/*
+clean:
+	rm -rf bin/*
 
-	.PHONY: all test clean
-	EOF
-        
+.PHONY: all test clean
+EOF
         
     - name: Build project
       run: |
         make clean
-        make
+        make all
       
     - name: Run tests
       run: |
@@ -69,6 +68,4 @@ jobs:
       
     - name: Verify solver
       run: |
-        ./bin/generate_system 5 test_system.csv
-        ./bin/gauss_solver test_system.csv solution.csv
-        cat solution.csv
+        ./bin/gauss_app  # Пример вызова, уточните команду
