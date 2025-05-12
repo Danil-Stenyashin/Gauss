@@ -45,5 +45,5 @@ jobs:
       
     - name: Проверка решения
       run: |
-        ./bin/gauss_app 5 test_system.csv solution.csv
+        ./bin/gauss_solver test_system.csv solution.csv
         cat solution.csv
