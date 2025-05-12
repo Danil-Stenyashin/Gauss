@@ -32,7 +32,7 @@ jobs:
         echo "GTEST_LIBS = -lgtest -lgtest_main -lpthread" >> Makefile
         echo "" >> Makefile
         echo "SRC = \$(wildcard src/*.cpp)" >> Makefile
-        echo "TESTS = tests/test_gauss.cpp" >> Makefile
+        echo "TESTS = test.cpp" >> Makefile
         echo "" >> Makefile
         echo "all: gauss_solver generate_system gauss_tests" >> Makefile
         echo "" >> Makefile
