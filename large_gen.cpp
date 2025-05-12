@@ -1,24 +1,24 @@
-#include "random_generator.h"
 #include "csv_utils.h"
-#include <Eigen/Dense>  
+#include "gauss.h"
+#include "random_generator.h"
 #include <iostream>
 
-
-
-int generate_main(int argc, char** argv) {
-    if (argc != 3) {
-        std::cerr << "Usage: " << argv[0] << " <size> <output.csv>" << std::endl;
+int solver_main(int argc, char** argv) {
+    if (argc != 2) {
+        std::cerr << "Usage: solve <input.csv> <output.csv>" << std::endl;
         return 1;
     }
 
     try {
-        int size = std::stoi(argv[1]);
-        auto [A, b] = RandomSystemGenerator::generateSystem(size, 42);
-
-        Eigen::MatrixXd Ab(A.rows(), A.cols() + 1);
-        Ab << A, b;
+        Eigen::MatrixXd Ab = CSVutils::readMatrix(argv[0]);
+        Eigen::MatrixXd A = Ab.leftCols(Ab.cols() - 1);
+        Eigen::VectorXd b = Ab.rightCols(1);
         
-        CSVutils::writeMatrix(argv[2], Ab);
+        Eigen::VectorXd x = GaussianSolver::solve(A, b);
+        
+        Eigen::MatrixXd result(x.size(), 1);
+        result.col(0) = x;
+        CSVutils::writeMatrix(argv[1], result);
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
         return 1;
