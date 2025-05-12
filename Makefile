@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -std=c++23 -O3 -march=native -Wall -Wextra -I/usr/include/eigen3
+CXXFLAGS = -std=c++17 -O3 -march=native -Wall -Wextra -I/usr/include/eigen3
 GTEST_LIBS = -lgtest -lgtest_main -lpthread
 
 SRC = main.cpp csv_utils.cpp gauss.cpp random_generator.cpp
