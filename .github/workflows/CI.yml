@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential libeigen3-dev libgtest-dev cmake
+        
+    - name: Build Google Test
+      run: |
+        cd /usr/src/gtest
+        sudo cmake CMakeLists.txt
+        sudo make
+        sudo cp *.a /usr/lib
+        
+    - name: Configure Makefile
+      run: |
+        echo "CXX = g++" > Makefile
+        echo "CXXFLAGS = -std=c++17 -Wall -Wextra -I/usr/include/eigen3" >> Makefile
+        echo "GTEST_LIBS = -lgtest -lgtest_main -lpthread" >> Makefile
+        echo "" >> Makefile
+        echo "SRC = \$(wildcard src/*.cpp)" >> Makefile
+        echo "TESTS = tests/test_gauss.cpp" >> Makefile
+        echo "" >> Makefile
+        echo "all: gauss_solver generate_system gauss_tests" >> Makefile
+        echo "" >> Makefile
+        echo "gauss_solver: src/main.cpp \$(SRC)" >> Makefile
+        echo -e "\t\$(CXX) \$(CXXFLAGS) \$^ -o bin/\$@" >> Makefile
+        echo "" >> Makefile
+        echo "generate_system: src/large_gen.cpp \$(filter-out src/main.cpp, \$(SRC))" >> Makefile
+        echo -e "\t\$(CXX) \$(CXXFLAGS) \$^ -o bin/\$@" >> Makefile
+        echo "" >> Makefile
+        echo "gauss_tests: \$(TESTS) \$(filter-out src/main.cpp src/large_gen.cpp, \$(SRC))" >> Makefile
+        echo -e "\t\$(CXX) \$(CXXFLAGS) \$^ \$(GTEST_LIBS) -o bin/\$@" >> Makefile
+        echo "" >> Makefile
+        echo "test: gauss_tests" >> Makefile
+        echo -e "\t./bin/gauss_tests" >> Makefile
+        echo "" >> Makefile
+        echo "clean:" >> Makefile
+        echo -e "\trm -rf bin/*" >> Makefile
+        echo "" >> Makefile
+        echo ".PHONY: all test clean" >> Makefile
+        mkdir -p bin
+        
+    - name: Build project
+      run: make all
+      
+    - name: Run tests
+      run: make test
+      
+    - name: Verify solver
+      run: |
+        ./bin/generate_system 5 test_system.csv
+        ./bin/gauss_solver test_system.csv solution.csv
+        cat solution.csv
