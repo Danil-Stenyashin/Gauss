@@ -13,60 +13,58 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     
-    - name: Установка зависимостей
+    - name: Install dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y build-essential libeigen3-dev libgtest-dev cmake
         
-    - name: Сборка Google Test
+    - name: Build Google Test
       run: |
         cd /usr/src/googletest
         sudo cmake CMakeLists.txt
         sudo make
         sudo cp lib/libgtest*.a /usr/lib
         
-    - name: Создание Makefile
+    - name: Setup Makefile
       run: |
         mkdir -p bin
-        cat > Makefile << 'EOF'
-CXX = g++
-CXXFLAGS = -std=c++17 -O3 -march=native -Wall -Wextra -I/usr/include/eigen3
-GTEST_LIBS = -lgtest -lgtest_main -lpthread
-
-SRC = main.cpp csv_utils.cpp gauss.cpp random_generator.cpp
-TEST_SRC = test.cpp
-
-TARGETS = bin/gauss_app bin/gauss_tests
-
-all: $(TARGETS)
-
-bin/gauss_app: $(SRC)
-	@mkdir -p bin
-	$(CXX) $(CXXFLAGS) $^ -o $@
-
-bin/gauss_tests: $(TEST_SRC) $(filter-out main.cpp, $(SRC))
-	@mkdir -p bin
-	$(CXX) $(CXXFLAGS) $^ $(GTEST_LIBS) -o $@
-
-test: bin/gauss_tests
-	./bin/gauss_tests
-
-clean:
-	rm -rf bin/*
-
-.PHONY: all test clean
-EOF
+        {
+          echo "CXX = g++"
+          echo "CXXFLAGS = -std=c++23 -O3 -march=native -Wall -Wextra -I/usr/include/eigen3"
+          echo "GTEST_LIBS = -lgtest -lgtest_main -lpthread"
+          echo ""
+          echo "SRC = main.cpp csv_utils.cpp gauss.cpp random_generator.cpp"
+          echo "TEST_SRC = test.cpp"
+          echo ""
+          echo "all: bin/gauss_app bin/gauss_tests"
+          echo ""
+          echo "bin/gauss_app: \$(SRC)"
+          echo $'\t@mkdir -p bin'
+          echo $'\t\$(CXX) \$(CXXFLAGS) \$\^ -o \$\@'
+          echo ""
+          echo "bin/gauss_tests: \$(TEST_SRC) \$(filter-out main.cpp, \$(SRC))"
+          echo $'\t@mkdir -p bin'
+          echo $'\t\$(CXX) \$(CXXFLAGS) \$\^ \$(GTEST_LIBS) -o \$\@'
+          echo ""
+          echo "test: bin/gauss_tests"
+          echo $'\t./bin/gauss_tests'
+          echo ""
+          echo "clean:"
+          echo $'\trm -rf bin/*'
+          echo ""
+          echo ".PHONY: all test clean"
+        } > Makefile
         
-    - name: Сборка проекта
+    - name: Build project
       run: |
         make clean
         make all
       
-    - name: Запуск тестов
+    - name: Run tests
       run: |
         make test
       
-    - name: Проверка решения
+    - name: Verify solver
       run: |
         ./bin/gauss_app 5 test_system.csv solution.csv
         cat solution.csv
