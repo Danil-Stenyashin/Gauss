@@ -55,7 +55,7 @@ jobs:
         echo ".PHONY: all test clean" >> Makefile
         
     - name: Build project
-      run: make all
+      run: make
       
     - name: Run tests
       run: make test
