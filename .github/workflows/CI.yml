@@ -31,26 +31,26 @@ jobs:
 		echo "CXX = g++" > Makefile
 		echo "CXXFLAGS = -std=c++17 -O3 -march=native -Wall -Wextra -I/usr/include/eigen3" >> Makefile
 		echo "GTEST_LIBS = -lgtest -lgtest_main -lpthread" >> Makefile
-		echo "" >> Makefile
+		echo >> Makefile
 		echo "SRC = main.cpp csv_utils.cpp gauss.cpp random_generator.cpp" >> Makefile
 		echo "TEST_SRC = test.cpp" >> Makefile
-		echo "" >> Makefile
+		echo >> Makefile
 		echo "all: bin/gauss_app bin/gauss_tests" >> Makefile
-		echo "" >> Makefile
+		echo >> Makefile
 		echo "bin/gauss_app: \$(SRC)" >> Makefile
-		echo -e "\t@mkdir -p bin" >> Makefile
-		echo -e "\t\$(CXX) \$(CXXFLAGS) \$\^ -o \$\@" >> Makefile
-		echo "" >> Makefile
+		echo $'\t@mkdir -p bin' >> Makefile
+		echo $'\t\$(CXX) \$(CXXFLAGS) \$\^ -o \$\@' >> Makefile
+		echo >> Makefile
 		echo "bin/gauss_tests: \$(TEST_SRC) \$(filter-out main.cpp, \$(SRC))" >> Makefile
-		echo -e "\t@mkdir -p bin" >> Makefile
-		echo -e "\t\$(CXX) \$(CXXFLAGS) \$\^ \$(GTEST_LIBS) -o \$\@" >> Makefile
-		echo "" >> Makefile
+		echo $'\t@mkdir -p bin' >> Makefile
+		echo $'\t\$(CXX) \$(CXXFLAGS) \$\^ \$(GTEST_LIBS) -o \$\@' >> Makefile
+		echo >> Makefile
 		echo "test: bin/gauss_tests" >> Makefile
-		echo -e "\t./bin/gauss_tests" >> Makefile
-		echo "" >> Makefile
+		echo $'\t./bin/gauss_tests' >> Makefile
+		echo >> Makefile
 		echo "clean:" >> Makefile
-		echo -e "\trm -rf bin/*" >> Makefile
-		echo "" >> Makefile
+		echo $'\trm -rf bin/*' >> Makefile
+		echo >> Makefile
 		echo ".PHONY: all test clean" >> Makefile
         
     - name: Build project
