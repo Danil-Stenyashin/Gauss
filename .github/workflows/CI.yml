@@ -1,4 +1,4 @@
-name: C+ CI
+name: CI
 
 on:
   push:
@@ -20,45 +20,44 @@ jobs:
         
     - name: Build Google Test
       run: |
-        cd /usr/src/gtest
+        cd /usr/src/googletest
         sudo cmake CMakeLists.txt
         sudo make
-        sudo cp *.a /usr/lib
+        sudo cp lib/libgtest*.a /usr/lib
         
-    - name: Configure Makefile
+    - name: Setup Makefile
       run: |
+        mkdir -p bin
         echo "CXX = g++" > Makefile
         echo "CXXFLAGS = -std=c++17 -Wall -Wextra -I/usr/include/eigen3" >> Makefile
         echo "GTEST_LIBS = -lgtest -lgtest_main -lpthread" >> Makefile
         echo "" >> Makefile
-        echo "SRC = \$(wildcard src/*.cpp)" >> Makefile
-        echo "TESTS = tests/test_gauss.cpp" >> Makefile
+        echo "SRC = \$(wildcard *.cpp)" >> Makefile
+        echo "TEST_SRC = test.cpp" >> Makefile
         echo "" >> Makefile
-        echo "all: gauss_solver generate_system gauss_tests" >> Makefile
-        echo "" >> Makefile
-        echo "gauss_solver: src/main.cpp \$(SRC)" >> Makefile
+        echo "gauss_solver: main.cpp \$(filter-out test.cpp, \$(SRC))" >> Makefile
         echo -e "\t\$(CXX) \$(CXXFLAGS) \$^ -o bin/\$@" >> Makefile
         echo "" >> Makefile
-        echo "generate_system: src/large_gen.cpp \$(filter-out src/main.cpp, \$(SRC))" >> Makefile
         echo -e "\t\$(CXX) \$(CXXFLAGS) \$^ -o bin/\$@" >> Makefile
         echo "" >> Makefile
-        echo "gauss_tests: \$(TESTS) \$(filter-out src/main.cpp src/large_gen.cpp, \$(SRC))" >> Makefile
         echo -e "\t\$(CXX) \$(CXXFLAGS) \$^ \$(GTEST_LIBS) -o bin/\$@" >> Makefile
         echo "" >> Makefile
-        echo "test: gauss_tests" >> Makefile
+        echo "test: tests" >> Makefile
         echo -e "\t./bin/gauss_tests" >> Makefile
         echo "" >> Makefile
         echo "clean:" >> Makefile
         echo -e "\trm -rf bin/*" >> Makefile
         echo "" >> Makefile
-        echo ".PHONY: all test clean" >> Makefile
-        mkdir -p bin
+        echo ".PHONY: all test clean" >> Makefileв
         
     - name: Build project
-      run: make all
+      run: |
+        make clean
+        make
       
     - name: Run tests
-      run: make test
+      run: |
+        make test
       
     - name: Verify solver
       run: |
