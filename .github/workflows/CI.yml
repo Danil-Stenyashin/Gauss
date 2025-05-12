@@ -35,8 +35,6 @@ jobs:
         echo "SRC = \$(wildcard *.cpp)" >> Makefile
         echo "TEST_SRC = test.cpp" >> Makefile
         echo "" >> Makefile
-        echo "all: gauss_solver generate_system gauss_tests" >> Makefile
-        echo "" >> Makefile
         echo "gauss_solver: main.cpp \$(filter-out test.cpp, \$(SRC))" >> Makefile
         echo -e "\t\$(CXX) \$(CXXFLAGS) \$^ -o bin/\$@" >> Makefile
         echo "" >> Makefile
