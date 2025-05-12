@@ -17,6 +17,10 @@
 
  cat 'solution.csv'
 
+# ALSO YOU CAN TEST Ahh... nice
+
+ make test
+
 # BEFORE YOU CAN CLOSE MAGIC MACHINE WITH THIS SIMPLE SPELL 
 
  make clean
