@@ -1,4 +1,4 @@
-name: CI
+name: C+ CI
 
 on:
   push:
@@ -20,47 +20,45 @@ jobs:
         
     - name: Build Google Test
       run: |
-        cd /usr/src/googletest
+        cd /usr/src/gtest
         sudo cmake CMakeLists.txt
         sudo make
-        sudo cp lib/libgtest*.a /usr/lib
+        sudo cp *.a /usr/lib
         
-	- name: Setup Makefile
-	  run: |
-		mkdir -p bin
-		echo "CXX = g++" > Makefile
-		echo "CXXFLAGS = -std=c++17 -O3 -march=native -Wall -Wextra -I/usr/include/eigen3" >> Makefile
-		echo "GTEST_LIBS = -lgtest -lgtest_main -lpthread" >> Makefile
-		echo "" >> Makefile
-		echo "SRC = main.cpp csv_utils.cpp gauss.cpp random_generator.cpp" >> Makefile
-		echo "TEST_SRC = test.cpp" >> Makefile
-		echo "" >> Makefile
-		echo "all: bin/gauss_app bin/gauss_tests" >> Makefile
-		echo "" >> Makefile
-		echo "bin/gauss_app: \$(SRC)" >> Makefile
-		echo -e "\t@mkdir -p bin" >> Makefile
-		echo -e "\t\$(CXX) \$(CXXFLAGS) \$^ -o \$@" >> Makefile
-		echo "" >> Makefile
-		echo "bin/gauss_tests: \$(TEST_SRC) \$(filter-out main.cpp, \$(SRC))" >> Makefile
-		echo -e "\t@mkdir -p bin" >> Makefile
-		echo -e "\t\$(CXX) \$(CXXFLAGS) \$^ \$(GTEST_LIBS) -o \$@" >> Makefile
-		echo "" >> Makefile
-		echo "test: bin/gauss_tests" >> Makefile
-		echo -e "\t./bin/gauss_tests" >> Makefile
-		echo "" >> Makefile
-		echo "clean:" >> Makefile
-		echo -e "\trm -rf bin/*" >> Makefile
-		echo "" >> Makefile
-		echo ".PHONY: all test clean" >> Makefile
+    - name: Configure Makefile
+      run: |
+        echo "CXX = g++" > Makefile
+        echo "CXXFLAGS = -std=c++17 -Wall -Wextra -I/usr/include/eigen3" >> Makefile
+        echo "GTEST_LIBS = -lgtest -lgtest_main -lpthread" >> Makefile
+        echo "" >> Makefile
+        echo "SRC = \$(wildcard src/*.cpp)" >> Makefile
+        echo "TESTS = tests/test_gauss.cpp" >> Makefile
+        echo "" >> Makefile
+        echo "all: gauss_solver generate_system gauss_tests" >> Makefile
+        echo "" >> Makefile
+        echo "gauss_solver: src/main.cpp \$(SRC)" >> Makefile
+        echo -e "\t\$(CXX) \$(CXXFLAGS) \$^ -o bin/\$@" >> Makefile
+        echo "" >> Makefile
+        echo "generate_system: src/large_gen.cpp \$(filter-out src/main.cpp, \$(SRC))" >> Makefile
+        echo -e "\t\$(CXX) \$(CXXFLAGS) \$^ -o bin/\$@" >> Makefile
+        echo "" >> Makefile
+        echo "gauss_tests: \$(TESTS) \$(filter-out src/main.cpp src/large_gen.cpp, \$(SRC))" >> Makefile
+        echo -e "\t\$(CXX) \$(CXXFLAGS) \$^ \$(GTEST_LIBS) -o bin/\$@" >> Makefile
+        echo "" >> Makefile
+        echo "test: gauss_tests" >> Makefile
+        echo -e "\t./bin/gauss_tests" >> Makefile
+        echo "" >> Makefile
+        echo "clean:" >> Makefile
+        echo -e "\trm -rf bin/*" >> Makefile
+        echo "" >> Makefile
+        echo ".PHONY: all test clean" >> Makefile
+        mkdir -p bin
         
     - name: Build project
-      run: |
-        make clean
-        make
+      run: make all
       
     - name: Run tests
-      run: |
-        make test
+      run: make test
       
     - name: Verify solver
       run: |
