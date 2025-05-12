@@ -25,26 +25,33 @@ jobs:
         sudo make
         sudo cp lib/libgtest*.a /usr/lib
         
-    - name: Setup Makefile
-      run: |
-        mkdir -p bin
-        printf "CXX = g++\n" > Makefile
-        printf "CXXFLAGS = -std=c++17 -O3 -march=native -Wall -Wextra -I/usr/include/eigen3\n" >> Makefile
-        printf "GTEST_LIBS = -lgtest -lgtest_main -lpthread\n\n" >> Makefile
-        printf "SRC = main.cpp csv_utils.cpp gauss.cpp random_generator.cpp\n" >> Makefile
-        printf "TEST_SRC = test.cpp\n\n" >> Makefile
-        printf "all: bin/gauss_app bin/gauss_tests\n\n" >> Makefile
-        printf "bin/gauss_app: \$(SRC)\n" >> Makefile
-        printf "\t@mkdir -p bin\n" >> Makefile
-        printf "\t\$(CXX) \$(CXXFLAGS) \$\^ -o \$\@\n\n" >> Makefile
-        printf "bin/gauss_tests: \$(TEST_SRC) \$(filter-out main.cpp, \$(SRC))\n" >> Makefile
-        printf "\t@mkdir -p bin\n" >> Makefile
-        printf "\t\$(CXX) \$(CXXFLAGS) \$\^ \$(GTEST_LIBS) -o \$\@\n\n" >> Makefile
-        printf "test: bin/gauss_tests\n" >> Makefile
-        printf "\t./bin/gauss_tests\n\n" >> Makefile
-        printf "clean:\n" >> Makefile
-        printf "\trm -rf bin/*\n\n" >> Makefile
-        printf ".PHONY: all test clean\n" >> Makefile
+	- name: Setup Makefile
+	  run: |
+		mkdir -p bin
+		echo "CXX = g++" > Makefile
+		echo "CXXFLAGS = -std=c++17 -O3 -march=native -Wall -Wextra -I/usr/include/eigen3" >> Makefile
+		echo "GTEST_LIBS = -lgtest -lgtest_main -lpthread" >> Makefile
+		echo "" >> Makefile
+		echo "SRC = main.cpp csv_utils.cpp gauss.cpp random_generator.cpp" >> Makefile
+		echo "TEST_SRC = test.cpp" >> Makefile
+		echo "" >> Makefile
+		echo "all: bin/gauss_app bin/gauss_tests" >> Makefile
+		echo "" >> Makefile
+		echo "bin/gauss_app: \$(SRC)" >> Makefile
+		echo -e "\t@mkdir -p bin" >> Makefile
+		echo -e "\t\$(CXX) \$(CXXFLAGS) \$\^ -o \$\@" >> Makefile
+		echo "" >> Makefile
+		echo "bin/gauss_tests: \$(TEST_SRC) \$(filter-out main.cpp, \$(SRC))" >> Makefile
+		echo -e "\t@mkdir -p bin" >> Makefile
+		echo -e "\t\$(CXX) \$(CXXFLAGS) \$\^ \$(GTEST_LIBS) -o \$\@" >> Makefile
+		echo "" >> Makefile
+		echo "test: bin/gauss_tests" >> Makefile
+		echo -e "\t./bin/gauss_tests" >> Makefile
+		echo "" >> Makefile
+		echo "clean:" >> Makefile
+		echo -e "\trm -rf bin/*" >> Makefile
+		echo "" >> Makefile
+		echo ".PHONY: all test clean" >> Makefile
         
     - name: Build project
       run: |
