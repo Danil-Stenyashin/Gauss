@@ -68,4 +68,4 @@ EOF
       
     - name: Verify solver
       run: |
-        ./bin/gauss_app  # Пример вызова, уточните команду
+        ./bin/gauss_app
