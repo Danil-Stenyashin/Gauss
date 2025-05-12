@@ -1,25 +1,27 @@
+#include "csv_utils.h"
+#include "gauss.h"
 #include <iostream>
-#include <string>
-
-int solver_main(int argc, char** argv);
-int generator_main(int argc, char** argv);
 
 int main(int argc, char** argv) {
-    if (argc < 2) {
-        std::cerr << "Usage: " << argv[0] << " <mode> [options]\n"
-                  << "Modes:\n"
-                  << "  solve <input> <output>\n"
-                  << "  generate <size> <output>\n";
+    if (argc != 3) {
+        std::cerr << "Usage: " << argv[0] << " <input.csv> <output.csv>" << std::endl;
         return 1;
     }
 
-    std::string mode(argv[1]);
-    if (mode == "solve") {
-        return solver_main(argc-1, argv+1);  
-    } else if (mode == "generate") {
-        return generator_main(argc-1, argv+1);  
-    } else {
-        std::cerr << "Unknown mode: " << mode << std::endl;
+    try {
+        Eigen::MatrixXd Ab = CSVutils::readMatrix(argv[1]);
+        Eigen::MatrixXd A = Ab.leftCols(Ab.cols() - 1);
+        Eigen::VectorXd b = Ab.rightCols(1);
+        
+        Eigen::VectorXd x = GaussianSolver::solve(A, b);
+        
+        Eigen::MatrixXd result(x.size(), 1);
+        result.col(0) = x;
+        CSVutils::writeMatrix(argv[2], result);
+    } catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
         return 1;
     }
+
+    return 0;
 }
