@@ -2,7 +2,7 @@ CXX = g++
 CXXFLAGS = -std=c++17 -O3 -march=native -Wall -Wextra -I/usr/include/eigen3
 GTEST_LIBS = -lgtest -lgtest_main -lpthread
 
-SRC = main.cpp csv_utils.cpp gauss.cpp random_generator.cpp large_gen.cpp
+SRC = main.cpp csv_utils.cpp gauss.cpp random_generator.cpp
 TEST_SRC = test.cpp
 
 TARGETS = bin/gauss_app bin/gauss_tests

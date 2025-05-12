@@ -3,8 +3,7 @@
 #include <Eigen/Dense>
 #include <iostream>
 
-// Переименовываем main() в generate_main()
-int generate_main(int argc, char** argv) {
+int main(int argc, char** argv) {  
     if (argc != 3) {
         std::cerr << "Usage: " << argv[0] << " <size> <output.csv>" << std::endl;
         return 1;
@@ -25,9 +24,3 @@ int generate_main(int argc, char** argv) {
 
     return 0;
 }
-
-#ifdef GENERATE_MODE
-int main(int argc, char** argv) {
-    return generate_main(argc, argv);
-}
-#endif
